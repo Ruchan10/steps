@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Goal ring. The progress arc follows the drawable level (0-10000), set with
+  ImageView.setImageLevel. Shown with scaleType fitCenter, so it stays round
+  and scales to whatever space the widget has.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape
+            android:innerRadius="40dp"
+            android:shape="ring"
+            android:thickness="8dp"
+            android:useLevel="false">
+            <solid android:color="@color/widget_track" />
+            <size
+                android:width="100dp"
+                android:height="100dp" />
+        </shape>
+    </item>
+    <item>
+        <!-- Start the arc at 12 o'clock. -->
+        <rotate
+            android:fromDegrees="270"
+            android:pivotX="50%"
+            android:pivotY="50%"
+            android:toDegrees="270">
+            <shape
+                android:innerRadius="40dp"
+                android:shape="ring"
+                android:thickness="8dp"
+                android:useLevel="true">
+                <solid android:color="@color/widget_accent" />
+                <size
+                    android:width="100dp"
+                    android:height="100dp" />
+            </shape>
+        </rotate>
+    </item>
+</layer-list>

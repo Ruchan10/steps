@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ic_steps in the widget accent colour, for use inside layer drawables (which can't be tinted from RemoteViews). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@color/widget_accent"
+        android:pathData="M5,7.5a3,4.5 0,1 0,6 0a3,4.5 0,1 0,-6 0zM5.7,15.5a2.3,2.5 0,1 0,4.6 0a2.3,2.5 0,1 0,-4.6 0zM13,10.5a3,4.5 0,1 0,6 0a3,4.5 0,1 0,-6 0zM13.7,18.5a2.3,2.5 0,1 0,4.6 0a2.3,2.5 0,1 0,-4.6 0z" />
+</vector>

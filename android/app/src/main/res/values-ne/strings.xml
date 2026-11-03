@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_channel">पाइला गन्ती</string>
+    <string name="notification_title">आज %1$s पाइला</string>
+    <string name="notification_text">%1$s · %2$s · लक्ष्य %3$s</string>
+    <string name="widget_small_label">आजका पाइला</string>
+    <string name="widget_progress_label">लक्ष्यको रिङ</string>
+    <string name="widget_small_description">आजका पाइला, दूरी र क्यालोरी। ठूलो बनाउँदा अझ धेरै देखाउँछ।</string>
+    <string name="widget_progress_description">दैनिक लक्ष्यतर्फको प्रगति। ठूलो बनाउँदा अझ धेरै देखाउँछ।</string>
+    <string name="widget_today">आज</string>
+    <string name="widget_steps_unit">पाइला</string>
+    <string name="widget_goal_progress">%2$s को %1$s</string>
+    <string name="widget_goal">लक्ष्य %1$s</string>
+    <string name="widget_distance">दूरी</string>
+    <string name="widget_calories">क्यालोरी</string>
+    <string name="widget_description">आज %1$s पाइला, लक्ष्यको %2$s</string>
+    <string name="distance_km">%1$s कि.मि.</string>
+    <string name="distance_mi">%1$s माइल</string>
+    <string name="energy_kcal">%1$s क्यालोरी</string>
+    <string name="energy_kj">%1$s कि.जु.</string>
+</resources>

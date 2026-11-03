@@ -1,0 +1,319 @@
+{
+  "@@locale": "en",
+  "appName": "Footnote",
+  "@appName": {
+    "description": "App name; not translated."
+  },
+  "tagline": "Every step, noted.",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "history": "History",
+  "steps": "steps",
+  "@steps": {
+    "description": "Unit after a step count, e.g. 6,240 steps."
+  },
+  "stepsToGo": "{steps} to go",
+  "@stepsToGo": {
+    "placeholders": {
+      "steps": {
+        "type": "String",
+        "example": "3,760"
+      }
+    }
+  },
+  "goalReached": "Goal reached! 🎉",
+  "goalChip": "Goal: {goal}",
+  "@goalChip": {
+    "placeholders": {
+      "goal": {
+        "type": "String",
+        "example": "10,000"
+      }
+    }
+  },
+  "distance": "Distance",
+  "calories": "Calories",
+  "last7Days": "Last 7 days",
+  "language": "Language",
+  "languageSystem": "Phone's language",
+  "@languageSystem": {
+    "description": "Follow the language the phone is set to."
+  },
+  "batteryTitle": "Keep counting in the background",
+  "batteryBody": "Set battery usage to Unrestricted so Android doesn't pause step tracking when the app is closed.",
+  "notNow": "Not now",
+  "setUnrestricted": "Set Unrestricted",
+  "dailyGoal": "Daily goal",
+  "customGoal": "Custom",
+  "save": "Save",
+  "yourDetails": "Your details",
+  "yourDetailsBody": "Used to estimate distance and calories. Stays on your phone.",
+  "metric": "Metric",
+  "imperial": "Imperial",
+  "height": "Height",
+  "weight": "Weight",
+  "unitCm": "cm",
+  "unitFt": "ft",
+  "unitIn": "in",
+  "unitKg": "kg",
+  "unitLb": "lb",
+  "heightRangeCm": "{min}–{max} cm",
+  "@heightRangeCm": {
+    "placeholders": {
+      "min": {
+        "type": "String",
+        "example": "100"
+      },
+      "max": {
+        "type": "String",
+        "example": "250"
+      }
+    }
+  },
+  "heightRangeFtIn": "{minFt} ft {minIn} in – {maxFt} ft {maxIn} in",
+  "@heightRangeFtIn": {
+    "placeholders": {
+      "minFt": {
+        "type": "String",
+        "example": "3"
+      },
+      "minIn": {
+        "type": "String",
+        "example": "4"
+      },
+      "maxFt": {
+        "type": "String",
+        "example": "8"
+      },
+      "maxIn": {
+        "type": "String",
+        "example": "2"
+      }
+    }
+  },
+  "weightRangeKg": "{min}–{max} kg",
+  "@weightRangeKg": {
+    "placeholders": {
+      "min": {
+        "type": "String",
+        "example": "25"
+      },
+      "max": {
+        "type": "String",
+        "example": "300"
+      }
+    }
+  },
+  "weightRangeLb": "{min}–{max} lb",
+  "@weightRangeLb": {
+    "placeholders": {
+      "min": {
+        "type": "String",
+        "example": "55"
+      },
+      "max": {
+        "type": "String",
+        "example": "660"
+      }
+    }
+  },
+  "heightCm": "{value} cm",
+  "@heightCm": {
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "170"
+      }
+    }
+  },
+  "heightFtIn": "{feet} ft {inches} in",
+  "@heightFtIn": {
+    "placeholders": {
+      "feet": {
+        "type": "String",
+        "example": "5"
+      },
+      "inches": {
+        "type": "String",
+        "example": "7"
+      }
+    }
+  },
+  "weightKg": "{value} kg",
+  "@weightKg": {
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "70"
+      }
+    }
+  },
+  "weightLb": "{value} lb",
+  "@weightLb": {
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "154"
+      }
+    }
+  },
+  "distanceKm": "{value} km",
+  "@distanceKm": {
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "4.2"
+      }
+    }
+  },
+  "distanceMi": "{value} mi",
+  "@distanceMi": {
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "2.6"
+      }
+    }
+  },
+  "energyKcal": "{value} kcal",
+  "@energyKcal": {
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "230"
+      }
+    }
+  },
+  "energyKj": "{value} kJ",
+  "@energyKj": {
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "960"
+      }
+    }
+  },
+  "kilometres": "Kilometres",
+  "miles": "Miles",
+  "kilocalories": "Kilocalories",
+  "kilojoules": "Kilojoules",
+  "distanceSheetBody": "How distance is shown in the app, widgets and notification.",
+  "caloriesSheetBody": "How calories burned are shown in the app, widgets and notification.",
+  "estimatedFromHeight": "Estimated from your height, {height}.",
+  "@estimatedFromHeight": {
+    "placeholders": {
+      "height": {
+        "type": "String",
+        "example": "170 cm"
+      }
+    }
+  },
+  "estimatedFromWeight": "Estimated from your weight, {weight}.",
+  "@estimatedFromWeight": {
+    "placeholders": {
+      "weight": {
+        "type": "String",
+        "example": "70 kg"
+      }
+    }
+  },
+  "edit": "Edit",
+  "range7": "7D",
+  "@range7": {
+    "description": "Last 7 days, short."
+  },
+  "range30": "30D",
+  "@range30": {
+    "description": "Last 30 days, short."
+  },
+  "totalSteps": "Total steps",
+  "dailyAvg": "Daily avg",
+  "bestDay": "Best day",
+  "goalMet": "Goal met",
+  "@goalMet": {
+    "description": "Number of days the goal was reached."
+  },
+  "avgDistance": "Avg distance",
+  "allDays": "All days",
+  "noStepsYet": "No steps recorded yet. Start walking!",
+  "noSensorTitle": "No step sensor",
+  "noSensorBody": "This device doesn't have a hardware step counter, so steps can't be recorded.",
+  "permissionTitle": "Count your steps",
+  "permissionBody": "Allow access to physical activity so Footnote can count your steps in the background, even when the app is closed.",
+  "activityBlockedBody": "Physical activity access is turned off. Open settings, tap Permissions and allow Physical activity.",
+  "openSettings": "Open settings",
+  "allow": "Allow",
+  "allowed": "Allowed",
+  "continueButton": "Continue",
+  "skip": "Skip",
+  "getStarted": "Get started",
+  "welcomeBody": "Footnote counts your steps in the background with your phone's step sensor. No account needed, and your data stays on your phone.",
+  "activityTitle": "Allow physical activity",
+  "activityBody": "Android asks before any app can read your step sensor. Footnote only uses it to count your steps.",
+  "notificationTitle": "Show a permanent notification",
+  "notificationBody": "While it counts, Footnote keeps a notification with today's steps. Android needs it to keep counting when the app is closed.",
+  "notificationBlockedBody": "Notifications are turned off for Footnote. Open settings and turn them on.",
+  "allowNotifications": "Allow notifications",
+  "notificationsAllowed": "Notifications are on",
+  "notificationPreviewTitle": "{steps} steps today",
+  "@notificationPreviewTitle": {
+    "description": "Same as the real notification's title.",
+    "placeholders": {
+      "steps": {
+        "type": "String",
+        "example": "2,481"
+      }
+    }
+  },
+  "notificationPreviewText": "{distance} · {energy} · Goal {goal}",
+  "@notificationPreviewText": {
+    "placeholders": {
+      "distance": {
+        "type": "String",
+        "example": "1.8 km"
+      },
+      "energy": {
+        "type": "String",
+        "example": "96 kcal"
+      },
+      "goal": {
+        "type": "String",
+        "example": "10,000"
+      }
+    }
+  },
+  "detailsTitle": "About you",
+  "detailsBody": "Your height and weight make distance and calorie estimates more accurate. They never leave your phone.",
+  "startCounting": "Start counting",
+  "stepOfTotal": "Step {current} of {total}",
+  "@stepOfTotal": {
+    "description": "Onboarding progress, read by screen readers.",
+    "placeholders": {
+      "current": {
+        "type": "String",
+        "example": "2"
+      },
+      "total": {
+        "type": "String",
+        "example": "4"
+      }
+    }
+  },
+  "updateTitle": "Update available",
+  "updateBody": "Version {version} is ready to download. You have {current}.",
+  "@updateBody": {
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.2.0"
+      },
+      "current": {
+        "type": "String",
+        "example": "1.1.0"
+      }
+    }
+  },
+  "whatsNew": "What's new",
+  "later": "Later",
+  "download": "Download"
+}

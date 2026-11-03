@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Footnote</string>
+    <string name="notification_channel">Step counting</string>
+    <string name="notification_title">%1$s steps today</string>
+    <string name="notification_text">%1$s · %2$s · Goal %3$s</string>
+    <string name="widget_small_label">Today\'s steps</string>
+    <string name="widget_progress_label">Goal ring</string>
+    <string name="widget_small_description">Today\'s steps, distance and calories. Shows more as you make it bigger.</string>
+    <string name="widget_progress_description">Progress towards your daily goal. Shows more as you make it bigger.</string>
+    <string name="widget_today">Today</string>
+    <string name="widget_steps_unit">steps</string>
+    <!-- e.g. "62% of 10,000" -->
+    <string name="widget_goal_progress">%1$s of %2$s</string>
+    <string name="widget_goal">Goal %1$s</string>
+    <string name="widget_distance">Distance</string>
+    <string name="widget_calories">Calories</string>
+    <!-- Read by screen readers, e.g. "6,240 steps today, 62% of goal" -->
+    <string name="widget_description">%1$s steps today, %2$s of goal</string>
+    <string name="distance_km">%1$s km</string>
+    <string name="distance_mi">%1$s mi</string>
+    <string name="energy_kcal">%1$s kcal</string>
+    <string name="energy_kj">%1$s kJ</string>
+</resources>

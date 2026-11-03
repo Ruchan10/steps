@@ -70,3 +70,4 @@ git push origin v1.1.0
 The tag sets the version name (`1.1.0`); the workflow run number sets the build
 number. Users on an older version see the update dialog the next time they open
 the app.
+# steps

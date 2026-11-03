@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Chart bar that grows from the bottom with the drawable level (0-10000). -->
+<scale xmlns:android="http://schemas.android.com/apk/res/android"
+    android:scaleGravity="bottom"
+    android:scaleHeight="100%">
+    <shape android:shape="rectangle">
+        <corners android:radius="4dp" />
+        <solid android:color="@color/widget_accent_muted" />
+    </shape>
+</scale>
