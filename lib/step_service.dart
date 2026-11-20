@@ -42,6 +42,41 @@ class TrackingStatus {
   final int? accentColor;
 }
 
+/// The installed app, for update checks.
+class AppInfo {
+  const AppInfo({
+    required this.version,
+    required this.versionCode,
+    required this.abis,
+    this.canInstallUpdates = true,
+  });
+
+  /// Version name, e.g. "1.2.0".
+  final String version;
+  final int versionCode;
+
+  /// Supported CPU ABIs, most preferred first, e.g. [arm64-v8a, armeabi-v7a].
+  final List<String> abis;
+
+  /// "Install unknown apps" is allowed for Footnote, so Android won't ask before an update.
+  final bool canInstallUpdates;
+}
+
+/// What happened when handing a downloaded update to Android's installer.
+enum InstallResult {
+  /// The installer is open.
+  started,
+
+  /// The file doesn't match its SHA-256 from update.json.
+  badChecksum,
+
+  /// The file is gone (e.g. the cache was cleared).
+  missing,
+
+  /// Nothing on the phone can install APKs.
+  noInstaller,
+}
+
 enum AppPermission { activity, notifications }
 
 enum PermissionResult { granted, denied, blocked }
@@ -85,14 +120,34 @@ class StepService {
   static Future<bool> requestBatteryUnrestricted() async =>
       await _methods.invokeMethod<bool>('requestBatteryUnrestricted') ?? false;
 
-  /// Installed version name (e.g. "1.2.0") and supported CPU ABIs, most preferred first.
-  static Future<({String version, List<String> abis})> getAppInfo() async {
+  static Future<AppInfo> getAppInfo() async {
     final map = await _methods.invokeMapMethod<String, Object?>('getAppInfo') ?? const {};
-    return (
+    return AppInfo(
       version: map['version'] as String? ?? '0.0.0',
+      versionCode: map['versionCode'] as int? ?? 0,
       abis: (map['abis'] as List?)?.cast<String>() ?? const <String>[],
+      canInstallUpdates: map['canInstallUpdates'] as bool? ?? true,
     );
   }
+
+  /// Folder that downloaded updates go in. The installer can only be given files from here.
+  static Future<String> getUpdateDir() async => await _methods.invokeMethod<String>('getUpdateDir') ?? '';
+
+  /// Checks the APK at [path] against [sha256] and opens Android's installer for it.
+  static Future<InstallResult> installUpdate(String path, String sha256) async {
+    final result = await _methods.invokeMethod<String>('installUpdate', {'path': path, 'sha256': sha256});
+    return InstallResult.values.asNameMap()[result] ?? InstallResult.missing;
+  }
+
+  /// The update the user was last offered on launch, and when.
+  static Future<({String? version, DateTime? at})> getUpdatePrompt() async {
+    final map = await _methods.invokeMapMethod<String, Object?>('getUpdatePrompt') ?? const {};
+    final at = map['at'] as int?;
+    return (version: map['version'] as String?, at: at == null ? null : DateTime.fromMillisecondsSinceEpoch(at));
+  }
+
+  /// Remembers that the user was just offered [version].
+  static Future<void> setUpdatePrompt(String version) => _methods.invokeMethod('setUpdatePrompt', {'version': version});
 
   /// Opens [url] in the browser. Returns false if nothing can handle it.
   static Future<bool> openUrl(String url) async =>

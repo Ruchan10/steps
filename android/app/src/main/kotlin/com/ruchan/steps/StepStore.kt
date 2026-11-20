@@ -29,6 +29,8 @@ object StepStore {
     private const val KEY_ENERGY_UNIT = "energy_unit"
     private const val KEY_LANGUAGE = "language"
     private const val KEY_ONBOARDED = "onboarded"
+    private const val KEY_UPDATE_PROMPT_VERSION = "update_prompt_version"
+    private const val KEY_UPDATE_PROMPT_AT = "update_prompt_at"
 
     private val listeners = CopyOnWriteArraySet<(Int) -> Unit>()
 
@@ -128,6 +130,24 @@ object StepStore {
     fun isOnboarded(context: Context): Boolean = getMeta(db(context), KEY_ONBOARDED) == "true"
 
     fun setOnboarded(context: Context) = setMeta(db(context), KEY_ONBOARDED, "true")
+
+    /** The app update the user was last offered, and when (milliseconds since the epoch). */
+    fun getUpdatePrompt(context: Context): Pair<String?, Long?> {
+        val db = db(context)
+        return getMeta(db, KEY_UPDATE_PROMPT_VERSION) to getMeta(db, KEY_UPDATE_PROMPT_AT)?.toLongOrNull()
+    }
+
+    fun setUpdatePrompt(context: Context, version: String, at: Long) {
+        val db = db(context)
+        db.beginTransaction()
+        try {
+            setMeta(db, KEY_UPDATE_PROMPT_VERSION, version)
+            setMeta(db, KEY_UPDATE_PROMPT_AT, at.toString())
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
+    }
 
     /**
      * Records a new cumulative sensor reading and returns today's total.

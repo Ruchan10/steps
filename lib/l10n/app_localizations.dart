@@ -654,6 +654,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Download'**
   String get download;
+
+  /// No description provided for @update.
+  ///
+  /// In en, this message translates to:
+  /// **'Update'**
+  String get update;
+
+  /// No description provided for @updateSize.
+  ///
+  /// In en, this message translates to:
+  /// **'Download size: {size}'**
+  String updateSize(String size);
+
+  /// No description provided for @installPermissionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Android will ask you to let Footnote install apps. It\'s only used for updates.'**
+  String get installPermissionHint;
+
+  /// No description provided for @updateDownloading.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading… {received} of {total}'**
+  String updateDownloading(String received, String total);
+
+  /// No description provided for @updateReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded. Tap Install to finish updating.'**
+  String get updateReady;
+
+  /// No description provided for @install.
+  ///
+  /// In en, this message translates to:
+  /// **'Install'**
+  String get install;
+
+  /// No description provided for @updateFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t download the update. Check your internet connection and try again.'**
+  String get updateFailed;
+
+  /// No description provided for @updateDamaged.
+  ///
+  /// In en, this message translates to:
+  /// **'The download was damaged. Try again.'**
+  String get updateDamaged;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get tryAgain;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @about.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get about;
+
+  /// No description provided for @versionNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String versionNumber(String version);
+
+  /// No description provided for @checkForUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Check for updates'**
+  String get checkForUpdates;
+
+  /// No description provided for @upToDate.
+  ///
+  /// In en, this message translates to:
+  /// **'You have the latest version.'**
+  String get upToDate;
+
+  /// No description provided for @updateCheckFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t check for updates. Check your internet connection and try again.'**
+  String get updateCheckFailed;
+
+  /// File size in megabytes.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} MB'**
+  String sizeMb(String value);
 }
 
 class _AppLocalizationsDelegate

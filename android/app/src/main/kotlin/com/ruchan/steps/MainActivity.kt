@@ -18,6 +18,8 @@ import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
+import java.io.File
+import java.io.IOException
 
 class MainActivity : FlutterActivity() {
 
@@ -73,13 +75,21 @@ class MainActivity : FlutterActivity() {
                 )
                 "requestPermission" -> requestPermission(call.argument<String>("permission") ?: PERMISSION_ACTIVITY, result)
                 "requestBatteryUnrestricted" -> requestBatteryUnrestricted(result)
-                "getAppInfo" -> result.success(
-                    mapOf(
-                        "version" to packageManager.getPackageInfo(packageName, 0).versionName,
-                        // Most preferred first, e.g. [arm64-v8a, armeabi-v7a, armeabi].
-                        "abis" to Build.SUPPORTED_ABIS.toList(),
-                    )
+                "getAppInfo" -> result.success(appInfo())
+                "getUpdateDir" -> result.success(AppUpdates.dir(this).absolutePath)
+                "installUpdate" -> installUpdate(call.argument<String>("path"), call.argument<String>("sha256"), result)
+                "getUpdatePrompt" -> result.success(
+                    StepStore.getUpdatePrompt(this).let { (version, at) -> mapOf("version" to version, "at" to at) }
                 )
+                "setUpdatePrompt" -> {
+                    val version = call.argument<String>("version")
+                    if (version == null) {
+                        result.error("bad_version", "Version is required", null)
+                    } else {
+                        StepStore.setUpdatePrompt(this, version, System.currentTimeMillis())
+                        result.success(null)
+                    }
+                }
                 "openUrl" -> {
                     val url = call.argument<String>("url")
                     try {
@@ -268,6 +278,56 @@ class MainActivity : FlutterActivity() {
         if (unrestricted) StepCounterService.start(this)
         pendingBatteryResult?.success(unrestricted)
         pendingBatteryResult = null
+    }
+
+    // --- Updates -------------------------------------------------------------
+
+    private fun appInfo(): Map<String, Any?> {
+        val info = packageManager.getPackageInfo(packageName, 0)
+        return mapOf(
+            "version" to info.versionName,
+            "versionCode" to if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                info.longVersionCode
+            } else {
+                @Suppress("DEPRECATION")
+                info.versionCode.toLong()
+            },
+            // Most preferred first, e.g. [arm64-v8a, armeabi-v7a, armeabi].
+            "abis" to Build.SUPPORTED_ABIS.toList(),
+            // "Install unknown apps" is already allowed, so Android won't ask before updating.
+            "canInstallUpdates" to packageManager.canRequestPackageInstalls(),
+        )
+    }
+
+    /**
+     * Checks the downloaded update at [path] against the SHA-256 from update.json, then opens
+     * the system installer. Replies "started", "badChecksum", "missing" or "noInstaller".
+     */
+    private fun installUpdate(path: String?, sha256: String?, result: MethodChannel.Result) {
+        if (path == null || sha256 == null) {
+            result.success("missing")
+            return
+        }
+        val apk = File(path)
+        Thread {
+            val problem = try {
+                when {
+                    !apk.isFile -> "missing"
+                    !AppUpdates.sha256(apk).equals(sha256, ignoreCase = true) -> "badChecksum"
+                    else -> null
+                }
+            } catch (_: IOException) {
+                "missing"
+            }
+            mainHandler.post {
+                val reply = problem ?: try {
+                    if (AppUpdates.install(this, apk)) "started" else "noInstaller"
+                } catch (_: IllegalArgumentException) {
+                    "missing" // Not in the updates folder, so the FileProvider can't share it.
+                }
+                result.success(reply)
+            }
+        }.start()
     }
 
     // --- Misc ----------------------------------------------------------------

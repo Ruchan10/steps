@@ -1,8 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-feature android:name="android.hardware.sensor.stepcounter" android:required="true" />
 
-    <!-- Only used to check GitHub for app updates. -->
+    <!-- Only used to check GitHub for app updates and download them. -->
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Hands a downloaded update to the system installer. Android asks the user once
+         ("Install unknown apps") before the first update. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -76,6 +79,17 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_progress_info" />
         </receiver>
+
+        <!-- Shares downloaded updates (cache/updates) with the system installer. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.updates"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/update_paths" />
+        </provider>
 
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

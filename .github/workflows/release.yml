@@ -1,42 +1,99 @@
-# Builds signed release APKs (one per CPU architecture) and publishes them as a
-# GitHub release. Triggered by pushing a version tag:
+# Builds signed release APKs and publishes them as a GitHub release, together with the
+# update.json the app reads to offer in-app updates (lib/update_checker.dart).
 #
-#   git tag v1.2.0 && git push origin v1.2.0
+# Start a release in either of two ways:
+#   - push a version tag:  git tag v1.2.0 && git push origin v1.2.0
+#   - or on GitHub:        Actions → Release → Run workflow, then type the version
+# A version with a suffix, like v1.2.0-beta.1, becomes a pre-release. The app doesn't
+# offer pre-releases as updates, so they're a safe way to try a build first.
 #
-# The tag sets the app version (1.2.0); the workflow run number sets the build number.
+# Each release has one APK per CPU architecture, plus a universal one:
+#   footnote-<version>-arm64-v8a.apk    most phones
+#   footnote-<version>-armeabi-v7a.apk  older 32-bit phones
+#   footnote-<version>-x86_64.apk       emulators and x86 devices
+#   footnote-<version>-universal.apk    any device (all three in one, bigger)
+# and update.json and SHA256SUMS.txt. All the APKs share one version code,
+# major*1000000 + minor*1000 + patch, so any of them can update any other.
 #
-# Required repository secrets (Settings → Secrets and variables → Actions):
-#   KEYSTORE_BASE64    base64 of the upload keystore (.jks)
-#   KEYSTORE_PASSWORD  keystore password
-#   KEY_ALIAS          key alias inside the keystore
-#   KEY_PASSWORD       key password
-# Every release must be signed with the same key, or Android refuses to install
-# the update over the existing app.
+# Repository secrets (Settings → Secrets and variables → Actions):
+#   KEYSTORE_BASE64    the release keystore (.jks), base64-encoded
+#   KEYSTORE_PASSWORD  its password
+#   KEY_ALIAS          optional, the key's alias (default: upload)
+#   KEY_PASSWORD       optional, the key's password (default: KEYSTORE_PASSWORD)
+# Every release must be signed with the same key, or Android won't install it over
+# the previous one. See README.md → Releasing.
 
 name: Release
 
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to release, like 1.2.0 (tags the chosen branch as v1.2.0)
+        required: true
+        type: string
+      notes:
+        description: What's new, shown in the app's update dialog (leave empty to list the commits since the last release)
+        required: false
+        type: string
 
 permissions:
-  contents: write # create the release and upload APKs
+  contents: write # create the release and upload its files
+
+concurrency:
+  group: release # one at a time
+  cancel-in-progress: false
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # all history and tags, for the release notes
 
-      - uses: actions/setup-java@v4
+      - name: Fetch tags
+        # Restores the pushed tag's annotation, which becomes the release notes.
+        run: git fetch --force --tags
+
+      - name: Check version
+        id: version
+        env:
+          RAW_VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
+        run: |
+          raw="${RAW_VERSION//[[:space:]]/}"
+          tag="v${raw#v}"
+          latest=()
+          if gh release view "$tag" > /dev/null 2>&1; then
+            echo "Release $tag exists already: replacing its files."
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            latest_tag=$(gh release view --json tagName --jq .tagName 2> /dev/null || true)
+            if [ -n "$latest_tag" ]; then latest=(--latest "$latest_tag"); fi
+          fi
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ] && git rev-parse -q --verify "refs/tags/$tag" > /dev/null \
+            && [ "$(git rev-parse "$tag^{commit}")" != "$GITHUB_SHA" ]; then
+            echo "::error::Tag $tag is already on another commit. Choose a new version."
+            exit 1
+          fi
+          python3 .github/scripts/release.py version "$raw" "${latest[@]}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
+          cache: gradle
 
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
-          flutter-version: '3.47.6'
+          flutter-version: '3.47.9' # the version used locally (flutter --version)
           cache: true
 
       - name: Install dependencies
@@ -49,51 +106,95 @@ jobs:
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          if [ -z "$KEYSTORE_BASE64" ]; then
-            echo "::error::KEYSTORE_BASE64 secret is missing. Release APKs must be signed with your own key."
+          if [ -z "$KEYSTORE_BASE64" ] || [ -z "$KEYSTORE_PASSWORD" ]; then
+            echo "::error::The KEYSTORE_BASE64 and KEYSTORE_PASSWORD secrets aren't set. See README.md → Releasing."
             exit 1
           fi
-          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upload-keystore.jks"
-          cat > android/key.properties <<EOF
-          storeFile=$RUNNER_TEMP/upload-keystore.jks
-          storePassword=$KEYSTORE_PASSWORD
-          keyAlias=$KEY_ALIAS
-          keyPassword=$KEY_PASSWORD
-          EOF
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.jks"
 
       - name: Build APKs
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          CODE: ${{ steps.version.outputs.code }}
+          # Read by android/app/build.gradle.kts.
+          RELEASE_STORE_FILE: ${{ runner.temp }}/release.jks
+          RELEASE_STORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
-          flutter build apk --release --split-per-abi \
-            --build-name="$VERSION" \
-            --build-number="${{ github.run_number }}" \
-            --dart-define=GITHUB_REPO="${{ github.repository }}"
+          args=(--release --build-name="$VERSION" --build-number="$CODE" --dart-define=GITHUB_REPO="$GITHUB_REPOSITORY")
+          mkdir apks
+          flutter build apk "${args[@]}" --split-per-abi
+          cp build/app/outputs/flutter-apk/app-*-release.apk apks/
+          flutter build apk "${args[@]}"
+          cp build/app/outputs/flutter-apk/app-release.apk apks/app-universal-release.apk
+          ls -l apks
 
-      - name: Rename APKs
+      - name: Check APKs
+        id: check
+        env:
+          CODE: ${{ steps.version.outputs.code }}
         run: |
-          mkdir dist
-          for apk in build/app/outputs/flutter-apk/app-*-release.apk; do
-            abi=$(basename "$apk" | sed -E 's/^app-(.+)-release\.apk$/\1/')
-            cp "$apk" "dist/footnote-$VERSION-$abi.apk"
+          tools=$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1)
+          for apk in apks/*.apk; do
+            "$tools/apksigner" verify "$apk"
+            code=$("$tools/aapt2" dump badging "$apk" | sed -nE "s/.*versionCode='([0-9]+)'.*/\1/p")
+            if [ "$code" != "$CODE" ]; then
+              echo "::error::$apk has version code $code instead of $CODE."
+              exit 1
+            fi
           done
-          (cd dist && sha256sum *.apk > SHA256SUMS.txt)
+          certs=$("$tools/apksigner" verify --print-certs apks/app-universal-release.apk)
+          echo "$certs"
+          if grep -q "CN=Android Debug" <<< "$certs"; then
+            echo "::error::The APKs are signed with a debug key (a new one on every run) instead of the release key."
+            exit 1
+          fi
+          echo "cert=$(grep -m 1 'certificate SHA-256 digest' <<< "$certs" | awk '{print $NF}')" >> "$GITHUB_OUTPUT"
+
+      - name: Write release notes
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+          NOTES: ${{ inputs.notes }}
+        run: |
+          python3 .github/scripts/release.py notes --tag "$TAG" --notes "$NOTES" > "$RUNNER_TEMP/notes.md"
+          cat "$RUNNER_TEMP/notes.md"
+
+      - name: Package release
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+          CODE: ${{ steps.version.outputs.code }}
+          CERT: ${{ steps.check.outputs.cert }}
+        run: |
+          python3 .github/scripts/release.py package --apks apks --out dist \
+            --body "$RUNNER_TEMP/body.md" --notes "$RUNNER_TEMP/notes.md" \
+            --version "$VERSION" --code "$CODE" --tag "$TAG" --repo "$GITHUB_REPOSITORY" --cert "$CERT"
           ls -l dist
+          cat dist/update.json
 
       - name: Publish release
         env:
-          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
+          EXISTS: ${{ steps.version.outputs.exists }}
         run: |
-          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
-            # Re-run of the same tag: replace the APKs.
-            gh release upload "$GITHUB_REF_NAME" dist/* --clobber
+          options=(--title "Footnote $VERSION" --notes-file "$RUNNER_TEMP/body.md")
+          if [ "$PRERELEASE" = true ]; then options+=(--prerelease); fi
+          if [ "$EXISTS" = true ]; then
+            gh release upload "$TAG" dist/* --clobber
+            gh release edit "$TAG" "${options[@]}"
+          elif [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            gh release create "$TAG" dist/* --draft --target "$GITHUB_SHA" "${options[@]}"
           else
-            gh release create "$GITHUB_REF_NAME" dist/* --title "Footnote $VERSION" --generate-notes
+            gh release create "$TAG" dist/* --draft --verify-tag "${options[@]}"
           fi
+          # Published last, so the app never sees the release with files missing.
+          gh release edit "$TAG" --draft=false
+          echo "Published $(gh release view "$TAG" --json url --jq .url)" | tee -a "$GITHUB_STEP_SUMMARY"
 
       - name: Remove signing key
         if: always()
-        run: rm -f android/key.properties "$RUNNER_TEMP/upload-keystore.jks"
+        run: rm -f "$RUNNER_TEMP/release.jks"

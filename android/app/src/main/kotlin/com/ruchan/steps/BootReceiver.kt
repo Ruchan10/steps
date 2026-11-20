@@ -10,6 +10,8 @@ class BootReceiver : BroadcastReceiver() {
         when (intent.action) {
             Intent.ACTION_BOOT_COMPLETED,
             Intent.ACTION_MY_PACKAGE_REPLACED -> {
+                // Just updated: the downloaded APK (if the update came from the app) is installed now.
+                if (intent.action == Intent.ACTION_MY_PACKAGE_REPLACED) AppUpdates.clear(context)
                 StepCounterService.start(context)
                 StepWidgets.updateAll(context)
             }

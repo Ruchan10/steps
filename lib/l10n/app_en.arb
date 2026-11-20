@@ -315,5 +315,58 @@
   },
   "whatsNew": "What's new",
   "later": "Later",
-  "download": "Download"
+  "download": "Download",
+  "update": "Update",
+  "updateSize": "Download size: {size}",
+  "@updateSize": {
+    "placeholders": {
+      "size": {
+        "type": "String",
+        "example": "7.2 MB"
+      }
+    }
+  },
+  "installPermissionHint": "Android will ask you to let Footnote install apps. It's only used for updates.",
+  "updateDownloading": "Downloading… {received} of {total}",
+  "@updateDownloading": {
+    "placeholders": {
+      "received": {
+        "type": "String",
+        "example": "3.1 MB"
+      },
+      "total": {
+        "type": "String",
+        "example": "7.2 MB"
+      }
+    }
+  },
+  "updateReady": "Downloaded. Tap Install to finish updating.",
+  "install": "Install",
+  "updateFailed": "Couldn't download the update. Check your internet connection and try again.",
+  "updateDamaged": "The download was damaged. Try again.",
+  "tryAgain": "Try again",
+  "cancel": "Cancel",
+  "about": "About",
+  "versionNumber": "Version {version}",
+  "@versionNumber": {
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "example": "1.2.0"
+      }
+    }
+  },
+  "checkForUpdates": "Check for updates",
+  "upToDate": "You have the latest version.",
+  "updateCheckFailed": "Couldn't check for updates. Check your internet connection and try again.",
+  "sizeMb": "{value} MB",
+  "@sizeMb": {
+    "description": "File size in megabytes.",
+    "placeholders": {
+      "value": {
+        "type": "String",
+        "example": "7.2"
+      }
+    }
+  }
 }

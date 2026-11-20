@@ -342,4 +342,65 @@ class AppLocalizationsNe extends AppLocalizations {
 
   @override
   String get download => 'डाउनलोड गर्नुहोस्';
+
+  @override
+  String get update => 'अपडेट गर्नुहोस्';
+
+  @override
+  String updateSize(String size) {
+    return 'डाउनलोड साइज: $size';
+  }
+
+  @override
+  String get installPermissionHint =>
+      'Android ले Footnote लाई एप इन्स्टल गर्ने अनुमति माग्नेछ। यो अपडेटका लागि मात्र प्रयोग हुन्छ।';
+
+  @override
+  String updateDownloading(String received, String total) {
+    return 'डाउनलोड हुँदैछ… $total मध्ये $received';
+  }
+
+  @override
+  String get updateReady =>
+      'डाउनलोड भयो। अपडेट पूरा गर्न इन्स्टल बटन थिच्नुहोस्।';
+
+  @override
+  String get install => 'इन्स्टल गर्नुहोस्';
+
+  @override
+  String get updateFailed =>
+      'अपडेट डाउनलोड हुन सकेन। इन्टरनेट जडान जाँचेर फेरि प्रयास गर्नुहोस्।';
+
+  @override
+  String get updateDamaged =>
+      'डाउनलोड भएको फाइल बिग्रिएको छ। फेरि प्रयास गर्नुहोस्।';
+
+  @override
+  String get tryAgain => 'फेरि प्रयास गर्नुहोस्';
+
+  @override
+  String get cancel => 'रद्द गर्नुहोस्';
+
+  @override
+  String get about => 'एपको बारेमा';
+
+  @override
+  String versionNumber(String version) {
+    return 'संस्करण $version';
+  }
+
+  @override
+  String get checkForUpdates => 'अपडेट जाँच्नुहोस्';
+
+  @override
+  String get upToDate => 'तपाईंसँग सबैभन्दा नयाँ संस्करण छ।';
+
+  @override
+  String get updateCheckFailed =>
+      'अपडेट जाँच्न सकिएन। इन्टरनेट जडान जाँचेर फेरि प्रयास गर्नुहोस्।';
+
+  @override
+  String sizeMb(String value) {
+    return '$value एमबी';
+  }
 }

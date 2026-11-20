@@ -19,6 +19,7 @@ class TodayPage extends StatefulWidget {
     required this.onEditDistance,
     required this.onEditEnergy,
     required this.onEditLanguage,
+    required this.onShowAbout,
     required this.showBatteryBanner,
     required this.onFixBattery,
     required this.onDismissBattery,
@@ -31,6 +32,9 @@ class TodayPage extends StatefulWidget {
   final VoidCallback onEditDistance;
   final VoidCallback onEditEnergy;
   final VoidCallback onEditLanguage;
+
+  /// Version and update check.
+  final VoidCallback onShowAbout;
   final bool showBatteryBanner;
   final VoidCallback onFixBattery;
   final VoidCallback onDismissBattery;
@@ -103,6 +107,11 @@ class _TodayPageState extends State<TodayPage> with AutomaticKeepAliveClientMixi
               onPressed: widget.onEditProfile,
               icon: const Icon(Icons.person_outline),
               tooltip: l.yourDetails,
+            ),
+            IconButton(
+              onPressed: widget.onShowAbout,
+              icon: const Icon(Icons.info_outline),
+              tooltip: l.about,
             ),
           ],
         ),

@@ -12,6 +12,7 @@ import 'settings_sheets.dart';
 import 'step_service.dart';
 import 'today_page.dart';
 import 'update_checker.dart';
+import 'update_dialog.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -96,21 +97,60 @@ class _HomeShellState extends State<HomeShell> {
   bool _batteryBannerDismissed = false;
   late final AppLifecycleListener _lifecycle;
 
+  /// When the app last looked for an update by itself; null to look at the next chance.
+  DateTime? _lastUpdateCheck;
+  bool _showingUpdate = false;
+
   @override
   void initState() {
     super.initState();
-    // Re-check when returning from system settings.
-    _lifecycle = AppLifecycleListener(onResume: _refreshStatus);
+    _lifecycle = AppLifecycleListener(
+      onResume: () {
+        _refreshStatus(); // e.g. back from system settings
+        _checkForUpdate(); // the app may have stayed open for days
+      },
+    );
     if (_status.permissionGranted) StepService.startTracking();
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkForUpdate());
   }
 
+  /// Offers a new release when the app opens: at most every 6 hours while it stays open,
+  /// and once a day for the same version (the About sheet checks on request).
   Future<void> _checkForUpdate() async {
     // Not in the middle of first-run setup.
-    if (!_onboarded) return;
-    final update = await UpdateChecker.check();
-    if (update == null || !mounted) return;
-    await showDialog<void>(context: context, builder: (_) => _UpdateDialog(update: update));
+    if (!UpdateChecker.enabled || !_onboarded || _showingUpdate) return;
+    final last = _lastUpdateCheck;
+    if (last != null && DateTime.now().difference(last) < const Duration(hours: 6)) return;
+    _lastUpdateCheck = DateTime.now();
+
+    final AppUpdate? update;
+    try {
+      update = await UpdateChecker.check();
+    } catch (_) {
+      _lastUpdateCheck = null; // Offline or GitHub unreachable: try again next time.
+      return;
+    }
+    if (update == null) return;
+    final prompt = await StepService.getUpdatePrompt();
+    if (!isPromptDue(update.version, lastVersion: prompt.version, lastAt: prompt.at, now: DateTime.now())) return;
+    if (!mounted) return;
+    StepService.setUpdatePrompt(update.version);
+    await _showUpdate(update);
+  }
+
+  Future<void> _showUpdate(AppUpdate update) async {
+    if (_showingUpdate) return;
+    _showingUpdate = true;
+    try {
+      await showUpdateDialog(context, update);
+    } finally {
+      _showingUpdate = false;
+    }
+  }
+
+  Future<void> _showAbout() async {
+    final update = await showAboutSheet(context);
+    if (update != null && mounted) await _showUpdate(update);
   }
 
   @override
@@ -243,6 +283,7 @@ class _HomeShellState extends State<HomeShell> {
               onEditDistance: _editDistance,
               onEditEnergy: _editEnergy,
               onEditLanguage: _editLanguage,
+              onShowAbout: _showAbout,
               showBatteryBanner: !_status.batteryUnrestricted && !_batteryBannerDismissed,
               onFixBattery: _fixBattery,
               onDismissBattery: _dismissBatteryBanner,
@@ -331,54 +372,6 @@ class _MessageScreen extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _UpdateDialog extends StatelessWidget {
-  const _UpdateDialog({required this.update});
-
-  final AppUpdate update;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final l = context.l10n;
-    return AlertDialog(
-      icon: const Icon(Icons.system_update_outlined),
-      title: Text(l.updateTitle),
-      content: ConstrainedBox(
-        constraints: const BoxConstraints(maxHeight: 280),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(l.updateBody(update.version, update.currentVersion)),
-              if (update.notes.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                Text(l.whatsNew, style: theme.textTheme.titleSmall),
-                const SizedBox(height: 4),
-                Text(
-                  update.notes,
-                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: Text(l.later)),
-        FilledButton.icon(
-          onPressed: () {
-            Navigator.pop(context);
-            StepService.openUrl(update.url);
-          },
-          icon: const Icon(Icons.download),
-          label: Text(l.download),
-        ),
-      ],
     );
   }
 }

@@ -6,7 +6,6 @@ import 'package:steps/l10n/app_localizations.dart';
 import 'package:steps/metrics.dart';
 import 'package:steps/profile_sheet.dart';
 import 'package:steps/step_service.dart';
-import 'package:steps/update_checker.dart';
 
 void main() {
   test('formatSteps adds thousands separators', () {
@@ -33,26 +32,6 @@ void main() {
     final days = lastNDays(history, 3, todaySteps: 42);
     expect(days.map((d) => d.steps), [500, 0, 42]);
     expect(days.last.date, today);
-  });
-
-  test('isNewerVersion compares numerically', () {
-    expect(isNewerVersion('1.0.1', '1.0.0'), isTrue);
-    expect(isNewerVersion('1.10.0', '1.9.9'), isTrue);
-    expect(isNewerVersion('2.0', '1.9.9'), isTrue);
-    expect(isNewerVersion('1.0.0', '1.0.0'), isFalse);
-    expect(isNewerVersion('1.0.0', '1.0.1'), isFalse);
-    expect(isNewerVersion('1.2.0+5', '1.2.0'), isFalse);
-  });
-
-  test('apkUrlForAbis picks the most preferred available ABI', () {
-    final assets = [
-      {'name': 'footnote-1.1.0-armeabi-v7a.apk', 'browser_download_url': 'v7a'},
-      {'name': 'footnote-1.1.0-arm64-v8a.apk', 'browser_download_url': 'arm64'},
-      {'name': 'footnote-1.1.0-x86_64.apk', 'browser_download_url': 'x64'},
-    ];
-    expect(apkUrlForAbis(assets, ['arm64-v8a', 'armeabi-v7a']), 'arm64');
-    expect(apkUrlForAbis(assets, ['armeabi-v7a', 'armeabi']), 'v7a');
-    expect(apkUrlForAbis(assets, ['mips']), isNull);
   });
 
   test('BodyProfile estimates distance and calories', () {

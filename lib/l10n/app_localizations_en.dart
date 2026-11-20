@@ -341,4 +341,63 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get download => 'Download';
+
+  @override
+  String get update => 'Update';
+
+  @override
+  String updateSize(String size) {
+    return 'Download size: $size';
+  }
+
+  @override
+  String get installPermissionHint =>
+      'Android will ask you to let Footnote install apps. It\'s only used for updates.';
+
+  @override
+  String updateDownloading(String received, String total) {
+    return 'Downloading… $received of $total';
+  }
+
+  @override
+  String get updateReady => 'Downloaded. Tap Install to finish updating.';
+
+  @override
+  String get install => 'Install';
+
+  @override
+  String get updateFailed =>
+      'Couldn\'t download the update. Check your internet connection and try again.';
+
+  @override
+  String get updateDamaged => 'The download was damaged. Try again.';
+
+  @override
+  String get tryAgain => 'Try again';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get about => 'About';
+
+  @override
+  String versionNumber(String version) {
+    return 'Version $version';
+  }
+
+  @override
+  String get checkForUpdates => 'Check for updates';
+
+  @override
+  String get upToDate => 'You have the latest version.';
+
+  @override
+  String get updateCheckFailed =>
+      'Couldn\'t check for updates. Check your internet connection and try again.';
+
+  @override
+  String sizeMb(String value) {
+    return '$value MB';
+  }
 }

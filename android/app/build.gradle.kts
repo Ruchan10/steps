@@ -6,12 +6,17 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
-// Release signing key. Created by CI from repository secrets (see .github/workflows/release.yml),
-// or locally by hand. Without it, release builds fall back to the debug key.
+// Release signing key: environment variables in CI (.github/workflows/release.yml), or
+// android/key.properties for local builds (see README.md). Without either, release builds
+// are signed with the debug key, which can't update an installed release.
 val keystoreProperties = Properties().apply {
     val file = rootProject.file("key.properties")
     if (file.exists()) file.inputStream().use { load(it) }
 }
+
+fun signingValue(env: String, property: String): String? =
+    providers.environmentVariable(env).orNull?.takeIf { it.isNotEmpty() }
+        ?: keystoreProperties.getProperty(property)?.takeIf { it.isNotEmpty() }
 
 android {
     namespace = "com.ruchan.steps"
@@ -39,12 +44,15 @@ android {
     }
 
     signingConfigs {
-        if (!keystoreProperties.isEmpty) {
+        val releaseStore = signingValue("RELEASE_STORE_FILE", "storeFile")
+        if (releaseStore != null) {
             create("release") {
-                storeFile = file(keystoreProperties.getProperty("storeFile"))
-                storePassword = keystoreProperties.getProperty("storePassword")
-                keyAlias = keystoreProperties.getProperty("keyAlias")
-                keyPassword = keystoreProperties.getProperty("keyPassword")
+                val password = signingValue("RELEASE_STORE_PASSWORD", "storePassword")
+                storeFile = file(releaseStore)
+                storePassword = password
+                keyAlias = signingValue("RELEASE_KEY_ALIAS", "keyAlias") ?: "upload"
+                // keytool's default PKCS12 keystores use one password for the store and the key.
+                keyPassword = signingValue("RELEASE_KEY_PASSWORD", "keyPassword") ?: password
             }
         }
     }
@@ -54,6 +62,21 @@ android {
             signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
         }
     }
+
+    packaging {
+        jniLibs {
+            // Compress the native libraries (the Flutter engine and the compiled Dart code),
+            // which are most of the APK: about half the download for each update, for a few
+            // more MB of storage once installed, where Android unpacks them.
+            useLegacyPackaging = true
+        }
+    }
+}
+
+dependencies {
+    // FileProvider, which hands downloaded updates to the system installer (AppUpdates.kt).
+    // Same version the Flutter embedding already brings in.
+    implementation("androidx.core:core:1.13.1")
 }
 
 kotlin {
